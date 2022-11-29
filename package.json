@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "simulationjs": "^2.4.0",
+    "vite": "^3.2.4"
+  }
+}
