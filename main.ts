@@ -36,10 +36,8 @@ const seperationStrength = 0.03;
 const overflowAmount = 8;
 const minDistance = 80;
 const distToSeperate = 35;
-// const minDistance = 120;
 
 let boids = initBoids(numBoids);
-// let boids: Boid[] = [new Boid(120, 100), new Boid(100, 100)];
 addBoidsToFrame(boids);
 
 const lines = new SceneCollection('lines');
