@@ -35,9 +35,9 @@ boidSpeed /= speedReduction;
 
 // 1 - 0, 1: 100%, 0: 0%
 let cohesionStrength = 0.045;
-let alignmentStrength = 0.07;
+let alignmentStrength = 0.06;
 let seperationStrength = 0.042;
-let avoidanceStrength = 0.05;
+let avoidanceStrength = 0.2;
 cohesionStrength /= speedReduction;
 alignmentStrength /= speedReduction;
 seperationStrength /= speedReduction;
@@ -148,7 +148,7 @@ function clampAngle(angle: number) {
     rotation += seperationRotation;
 
     if (avoidPoint && distance(avoidPoint, boids[i].pos) < avoidDist) {
-      rotation += -clampAngle(angleToRotate(avoidPoint, boids[i]));
+      rotation += -clampAngle(angleToRotate(avoidPoint, boids[i]) * avoidanceStrength);
     }
 
     if (!isNaN(rotation)) {
