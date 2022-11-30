@@ -27,15 +27,19 @@ class Boid extends Polygon {
 }
 
 const numBoids = 300;
-const speedReduction = 2.5;
-const boidSpeed = 2.5 / speedReduction;
+const speedReduction = 1;
+// const speedReduction = 2.5;
+
+let boidSpeed = 2.5;
+boidSpeed /= speedReduction;
+
 // 1 - 0, 1: 100%, 0: 0%
-// const cohesionStrength = 0.04;
-// const alignmentStrength = 0.07;
-// const seperationStrength = 0.03;
-const cohesionStrength = 0.045 / speedReduction;
-const alignmentStrength = 0.07 / speedReduction;
-const seperationStrength = 0.03 / speedReduction;
+let cohesionStrength = 0.045;
+let alignmentStrength = 0.07;
+let seperationStrength = 0.035;
+cohesionStrength /= speedReduction;
+alignmentStrength /= speedReduction;
+seperationStrength /= speedReduction;
 
 const overflowAmount = 8;
 const minDistance = 80;
@@ -50,6 +54,11 @@ canvas.add(lines, 'lines');
 const centers = new SceneCollection('centers');
 canvas.add(centers, 'centers');
 
+// let showLines = true;
+// let showCircles = true;
+let showLines = false;
+let showCircles = false;
+
 function angleToRotate(avgPoint: Point, boid: Boid) {
   const relativeAvgPoint = new Point(avgPoint.x - boid.pos.x, avgPoint.y - boid.pos.y);
   let rotation = radToDeg(Math.atan2(relativeAvgPoint.y, relativeAvgPoint.x)) + 90 - boid.rotation;
@@ -59,10 +68,9 @@ function angleToRotate(avgPoint: Point, boid: Boid) {
   return rotation;
 }
 
-const showLines = true;
-const showCircles = true;
-// const showLines = false;
-// const showCircles = false;
+function clampAngle(angle: number) {
+  return Math.min(Math.abs(angle), 20) * Math.sign(angle);
+}
 
 (function main() {
   if (showLines) {
@@ -107,18 +115,18 @@ const showCircles = true;
     }
 
     let rotation = 0;
-    rotation += angleToRotate(avgPoint, boids[i]) * cohesionStrength;
+    rotation += clampAngle(angleToRotate(avgPoint, boids[i]) * cohesionStrength);
 
     const relativeVec = new Vector(0, -1, averageRotation);
     const relativePoint = new Point(relativeVec.x + boids[i].pos.x, relativeVec.y + boids[i].pos.y);
-    rotation += angleToRotate(relativePoint, boids[i]) * alignmentStrength;
+    rotation += clampAngle(angleToRotate(relativePoint, boids[i]) * alignmentStrength);
 
     let seperationRotation = 0;
     for (let j = 0; j < boidsInMinorRadius.length; j++) {
       const angle = -angleToRotate(boidsInMinorRadius[j].pos, boids[i]) * seperationStrength;
       seperationRotation += angle;
     }
-    seperationRotation = Math.min(Math.abs(seperationRotation), 20) * Math.sign(seperationRotation);
+    seperationRotation = clampAngle(seperationRotation);
     rotation += seperationRotation;
 
     if (!isNaN(rotation)) {
