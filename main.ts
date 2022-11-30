@@ -47,7 +47,7 @@ const overflowAmount = 8;
 const minDistance = 80;
 const distToSeperate = 35;
 const avoidDist = 120;
-const maxRotation = 20;
+const maxRotation = 10;
 
 let boids = initBoids(numBoids);
 addBoidsToFrame(boids);
@@ -152,6 +152,7 @@ function clampAngle(angle: number) {
     }
 
     if (!isNaN(rotation)) {
+      rotation = clampAngle(rotation);
       boids[i].rotate(rotation);
     }
     const vec = new Vector(0, 1, boids[i].rotation).multiply(-boidSpeed);
