@@ -35,7 +35,7 @@ boidSpeed /= speedReduction;
 
 // 1 - 0, 1: 100%, 0: 0%
 let cohesionStrength = 0.03;
-let alignmentStrength = 0.06;
+let alignmentStrength = 0.07;
 let seperationStrength = 0.042;
 let avoidanceStrength = 0.4;
 cohesionStrength /= speedReduction;
