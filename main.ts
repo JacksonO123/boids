@@ -26,12 +26,16 @@ class Boid extends Polygon {
   }
 }
 
-const numBoids = 250;
-const boidSpeed = 2.5;
+const numBoids = 300;
+const speedReduction = 2.5;
+const boidSpeed = 2.5 / speedReduction;
 // 1 - 0, 1: 100%, 0: 0%
-const cohesionStrength = 0.04;
-const alignmentStrength = 0.07;
-const seperationStrength = 0.03;
+// const cohesionStrength = 0.04;
+// const alignmentStrength = 0.07;
+// const seperationStrength = 0.03;
+const cohesionStrength = 0.045 / speedReduction;
+const alignmentStrength = 0.07 / speedReduction;
+const seperationStrength = 0.03 / speedReduction;
 
 const overflowAmount = 8;
 const minDistance = 80;
@@ -55,10 +59,10 @@ function angleToRotate(avgPoint: Point, boid: Boid) {
   return rotation;
 }
 
-// const showLines = true;
-// const showCircles = true;
-const showLines = false;
-const showCircles = false;
+const showLines = true;
+const showCircles = true;
+// const showLines = false;
+// const showCircles = false;
 
 (function main() {
   if (showLines) {
