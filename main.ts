@@ -36,14 +36,18 @@ boidSpeed /= speedReduction;
 // 1 - 0, 1: 100%, 0: 0%
 let cohesionStrength = 0.045;
 let alignmentStrength = 0.07;
-let seperationStrength = 0.035;
+let seperationStrength = 0.042;
+let avoidanceStrength = 0.05;
 cohesionStrength /= speedReduction;
 alignmentStrength /= speedReduction;
 seperationStrength /= speedReduction;
+avoidanceStrength /= speedReduction;
 
 const overflowAmount = 8;
 const minDistance = 80;
 const distToSeperate = 35;
+const avoidDist = 120;
+const maxRotation = 20;
 
 let boids = initBoids(numBoids);
 addBoidsToFrame(boids);
@@ -59,6 +63,20 @@ canvas.add(centers, 'centers');
 let showLines = false;
 let showCircles = false;
 
+let avoidPoint: Point | null = null;
+
+canvas.on('mousedown', (e: any) => {
+  avoidPoint = new Point(e.offsetX, e.offsetY);
+});
+canvas.on('mouseup', () => {
+  avoidPoint = null;
+});
+canvas.on('mousemove', (e: any) => {
+  if (avoidPoint) {
+    avoidPoint = new Point(e.offsetX, e.offsetY);
+  }
+});
+
 function angleToRotate(avgPoint: Point, boid: Boid) {
   const relativeAvgPoint = new Point(avgPoint.x - boid.pos.x, avgPoint.y - boid.pos.y);
   let rotation = radToDeg(Math.atan2(relativeAvgPoint.y, relativeAvgPoint.x)) + 90 - boid.rotation;
@@ -69,7 +87,7 @@ function angleToRotate(avgPoint: Point, boid: Boid) {
 }
 
 function clampAngle(angle: number) {
-  return Math.min(Math.abs(angle), 20) * Math.sign(angle);
+  return Math.min(Math.abs(angle), maxRotation) * Math.sign(angle);
 }
 
 (function main() {
@@ -128,6 +146,10 @@ function clampAngle(angle: number) {
     }
     seperationRotation = clampAngle(seperationRotation);
     rotation += seperationRotation;
+
+    if (avoidPoint && distance(avoidPoint, boids[i].pos) < avoidDist) {
+      rotation += -clampAngle(angleToRotate(avoidPoint, boids[i]));
+    }
 
     if (!isNaN(rotation)) {
       boids[i].rotate(rotation);
