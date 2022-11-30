@@ -34,7 +34,7 @@ let boidSpeed = 2.5;
 boidSpeed /= speedReduction;
 
 // 1 - 0, 1: 100%, 0: 0%
-let cohesionStrength = 0.045;
+let cohesionStrength = 0.03;
 let alignmentStrength = 0.06;
 let seperationStrength = 0.042;
 let avoidanceStrength = 0.4;
@@ -47,7 +47,7 @@ const overflowAmount = 8;
 const minDistance = 80;
 const distToSeperate = 35;
 const avoidDist = 120;
-const maxRotation = 5;
+const maxRotation = 15;
 
 let boids = initBoids(numBoids);
 addBoidsToFrame(boids);
