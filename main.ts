@@ -47,7 +47,7 @@ const overflowAmount = 8;
 const minDistance = 80;
 const distToSeperate = 35;
 const avoidDist = 120;
-const maxRotation = 10;
+const maxRotation = 5;
 
 let boids = initBoids(numBoids);
 addBoidsToFrame(boids);
