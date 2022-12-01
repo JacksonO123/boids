@@ -208,7 +208,6 @@ function clampAngle(angle: number) {
       rotation += -clampAngle(angleToRotate(avoidPoint, boids[i]) * avoidanceStrength);
     }
 
-    console.log(rotation);
     rotation = clampAngle(rotation);
     boids[i].rotate(rotation);
     const vec = new Vector(0, 1, boids[i].rotation).multiply(-boidSpeed);
