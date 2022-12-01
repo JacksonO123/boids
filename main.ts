@@ -14,6 +14,15 @@ import {
 const canvas = new Simulation('canvas');
 canvas.fitElement();
 
+const lines = new SceneCollection('lines');
+canvas.add(lines, 'lines');
+
+const centers = new SceneCollection('centers');
+canvas.add(centers, 'centers');
+
+const boidsCollection = new SceneCollection('boids');
+canvas.add(boidsCollection, 'boids');
+
 class Boid extends Polygon {
   constructor(x: number, y: number, r = 0) {
     super(
@@ -26,8 +35,8 @@ class Boid extends Polygon {
   }
 }
 
-const numBoids = 300;
-const speedReduction = 1;
+let numBoids = 300;
+let speedReduction = 1;
 // const speedReduction = 2.5;
 
 let boidSpeed = 2.5;
@@ -35,7 +44,7 @@ boidSpeed /= speedReduction;
 
 // 1 - 0, 1: 100%, 0: 0%
 let cohesionStrength = 0.03;
-let alignmentStrength = 0.07;
+let alignmentStrength = 0.095;
 let seperationStrength = 0.042;
 let avoidanceStrength = 0.4;
 cohesionStrength /= speedReduction;
@@ -43,20 +52,25 @@ alignmentStrength /= speedReduction;
 seperationStrength /= speedReduction;
 avoidanceStrength /= speedReduction;
 
+// @ts-ignore
+document.getElementById('cohesionInput').value = cohesionStrength * speedReduction;
+// @ts-ignore
+document.getElementById('alignmentInput').value = alignmentStrength * speedReduction;
+// @ts-ignore
+document.getElementById('seperationInput').value = seperationStrength * speedReduction;
+// @ts-ignore
+document.getElementById('numBoidsInput').value = numBoids;
+// @ts-ignore
+document.getElementById('speedReductionInput').value = speedReduction;
+
 const overflowAmount = 8;
 const minDistance = 80;
 const distToSeperate = 35;
-const avoidDist = 120;
+const avoidDist = 180;
 const maxRotation = 15;
 
 let boids = initBoids(numBoids);
 addBoidsToFrame(boids);
-
-const lines = new SceneCollection('lines');
-canvas.add(lines, 'lines');
-
-const centers = new SceneCollection('centers');
-canvas.add(centers, 'centers');
 
 // let showLines = true;
 // let showCircles = true;
@@ -64,6 +78,44 @@ let showLines = false;
 let showCircles = false;
 
 let avoidPoint: Point | null = null;
+
+(window as any).changeCohesion = (val: number) => {
+  cohesionStrength = val / speedReduction;
+};
+
+(window as any).changeAlignment = (val: number) => {
+  alignmentStrength = val / speedReduction;
+};
+
+(window as any).changeSeperation = (val: number) => {
+  seperationStrength = val / speedReduction;
+};
+
+(window as any).changeNumBoids = (val: number) => {
+  numBoids = val;
+  if (boids.length < numBoids) {
+    const newBoids = initBoids(numBoids - boids.length);
+    boids = [...boids, ...newBoids];
+    addBoidsToFrame(boids);
+  }
+  if (boids.length > numBoids) {
+    const overflow = boids.length - numBoids;
+    boids.splice(boids.length - overflow, boids.length);
+    addBoidsToFrame(boids);
+  }
+};
+
+(window as any).changeSpeedReduction = (val: number) => {
+  cohesionStrength *= speedReduction;
+  alignmentStrength *= speedReduction;
+  seperationStrength *= speedReduction;
+  boidSpeed *= speedReduction;
+  speedReduction = val;
+  cohesionStrength /= speedReduction;
+  alignmentStrength /= speedReduction;
+  seperationStrength /= speedReduction;
+  boidSpeed /= speedReduction;
+};
 
 canvas.on('mousedown', (e: any) => {
   avoidPoint = new Point(e.offsetX, e.offsetY);
@@ -133,11 +185,15 @@ function clampAngle(angle: number) {
     }
 
     let rotation = 0;
-    rotation += clampAngle(angleToRotate(avgPoint, boids[i]) * cohesionStrength);
+    let cohesionAmount = clampAngle(angleToRotate(avgPoint, boids[i]) * cohesionStrength);
+    cohesionAmount = isNaN(cohesionAmount) ? 0 : cohesionAmount;
+    rotation += cohesionStrength;
 
     const relativeVec = new Vector(0, -1, averageRotation);
     const relativePoint = new Point(relativeVec.x + boids[i].pos.x, relativeVec.y + boids[i].pos.y);
-    rotation += clampAngle(angleToRotate(relativePoint, boids[i]) * alignmentStrength);
+    let alignmentAmount = clampAngle(angleToRotate(relativePoint, boids[i]) * alignmentStrength);
+    alignmentAmount = isNaN(alignmentAmount) ? 0 : alignmentAmount;
+    rotation += alignmentAmount;
 
     let seperationRotation = 0;
     for (let j = 0; j < boidsInMinorRadius.length; j++) {
@@ -145,16 +201,15 @@ function clampAngle(angle: number) {
       seperationRotation += angle;
     }
     seperationRotation = clampAngle(seperationRotation);
+    seperationRotation = isNaN(seperationRotation) ? 0 : seperationRotation;
     rotation += seperationRotation;
 
     if (avoidPoint && distance(avoidPoint, boids[i].pos) < avoidDist) {
       rotation += -clampAngle(angleToRotate(avoidPoint, boids[i]) * avoidanceStrength);
     }
 
-    if (!isNaN(rotation)) {
-      rotation = clampAngle(rotation);
-      boids[i].rotate(rotation);
-    }
+    rotation = clampAngle(rotation);
+    boids[i].rotate(rotation);
     const vec = new Vector(0, 1, boids[i].rotation).multiply(-boidSpeed);
     boids[i].move(vec);
 
@@ -173,8 +228,8 @@ function clampAngle(angle: number) {
 })();
 
 function addBoidsToFrame(boids: Boid[]) {
-  canvas.empty();
-  boids.forEach((boid) => canvas.add(boid));
+  boidsCollection.empty();
+  boids.forEach((boid) => boidsCollection.add(boid));
 }
 
 function random(range: number) {

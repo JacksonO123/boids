@@ -7,4 +7,30 @@
 
 body {
 	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+header {
+	--gap: 12px;
+	width: 100%;
+	padding: var(--gap);
+	display: flex;
+	gap: var(--gap);
+	border-bottom: 1px solid black;
+}
+
+header div {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+header div input {
+	width: 100%;
+}
+
+main {
+	height: 100%;
 }
