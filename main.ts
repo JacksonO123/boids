@@ -187,7 +187,7 @@ function clampAngle(angle: number) {
     let rotation = 0;
     let cohesionAmount = clampAngle(angleToRotate(avgPoint, boids[i]) * cohesionStrength);
     cohesionAmount = isNaN(cohesionAmount) ? 0 : cohesionAmount;
-    rotation += cohesionStrength;
+    rotation += cohesionAmount;
 
     const relativeVec = new Vector(0, -1, averageRotation);
     const relativePoint = new Point(relativeVec.x + boids[i].pos.x, relativeVec.y + boids[i].pos.y);
@@ -208,6 +208,7 @@ function clampAngle(angle: number) {
       rotation += -clampAngle(angleToRotate(avoidPoint, boids[i]) * avoidanceStrength);
     }
 
+    console.log(rotation);
     rotation = clampAngle(rotation);
     boids[i].rotate(rotation);
     const vec = new Vector(0, 1, boids[i].rotation).multiply(-boidSpeed);
