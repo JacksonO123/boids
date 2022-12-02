@@ -8,8 +8,7 @@ import {
   Vector,
   Circle,
   radToDeg,
-  Line,
-  pythag
+  Line
 } from 'simulationjs';
 
 const canvas = new Simulation('canvas');
@@ -81,17 +80,38 @@ let colors = true;
 
 let avoidPoint: Point | null = null;
 
+function toPercent(val: number) {
+  return `${(val * 100).toFixed(0)}%`;
+}
+
+// @ts-ignore
+document.getElementById('cohesion').innerHTML = toPercent(cohesionStrength);
+// @ts-ignore
+document.getElementById('alignment').innerHTML = toPercent(alignmentStrength);
+// @ts-ignore
+document.getElementById('seperation').innerHTML = toPercent(seperationStrength);
+// @ts-ignore
+document.getElementById('numBoids').innerHTML = numBoids;
+
 (window as any).changeCohesion = (val: number) => {
   cohesionStrength = val / speedReduction;
+  // @ts-ignore
+  document.getElementById('cohesion').innerHTML = toPercent(cohesionStrength);
 };
 
 (window as any).changeAlignment = (val: number) => {
   alignmentStrength = val / speedReduction;
+  // @ts-ignore
+  document.getElementById('aligment').innerHTML = toPercent(alignmentStrength);
 };
 
 (window as any).changeSeperation = (val: number) => {
   seperationStrength = val / speedReduction;
+  // @ts-ignore
+  document.getElementById('seperation').innerHTML = toPercent(seperationStrength);
 };
+// @ts-ignore
+document.getElementById('speedReduction').innerHTML = toPercent(speedReduction);
 
 (window as any).changeNumBoids = (val: number) => {
   numBoids = val;
@@ -105,6 +125,8 @@ let avoidPoint: Point | null = null;
     boids.splice(boids.length - overflow, boids.length);
     addBoidsToFrame(boids);
   }
+  // @ts-ignore
+  document.getElementById('numBoids').innerHTML = numBoids;
 };
 
 (window as any).changeSpeedReduction = (val: number) => {
@@ -117,6 +139,8 @@ let avoidPoint: Point | null = null;
   alignmentStrength /= speedReduction;
   seperationStrength /= speedReduction;
   boidSpeed /= speedReduction;
+  // @ts-ignore
+  document.getElementById('speedReduction').innerHTML = toPercent(speedReduction);
 };
 
 (window as any).toggleColors = () => {
@@ -161,14 +185,6 @@ function clampAngle(angle: number) {
     centers.empty();
   }
   for (let i = 0; i < boids.length; i++) {
-    if (showLines) {
-      const p1 = boids[i].pos.clone();
-      const p2Temp = new Vector(0, 30).rotateTo(boids[i].rotation).rotate(180);
-      const p2 = new Vector(boids[i].pos.x + p2Temp.x, boids[i].pos.y + p2Temp.y);
-      let line = new Line(p1, p2, new Color(255, 0, 0));
-      lines.add(line);
-    }
-
     let avgX = 0;
     let avgY = 0;
     let boidsInRange: Boid[] = [];
