@@ -8,7 +8,8 @@ import {
   Vector,
   Circle,
   radToDeg,
-  Line
+  Line,
+  pythag
 } from 'simulationjs';
 
 const canvas = new Simulation('canvas');
@@ -160,6 +161,14 @@ function clampAngle(angle: number) {
     centers.empty();
   }
   for (let i = 0; i < boids.length; i++) {
+    if (showLines) {
+      const p1 = boids[i].pos.clone();
+      const p2Temp = new Vector(0, 30).rotateTo(boids[i].rotation).rotate(180);
+      const p2 = new Vector(boids[i].pos.x + p2Temp.x, boids[i].pos.y + p2Temp.y);
+      let line = new Line(p1, p2, new Color(255, 0, 0));
+      lines.add(line);
+    }
+
     let avgX = 0;
     let avgY = 0;
     let boidsInRange: Boid[] = [];
