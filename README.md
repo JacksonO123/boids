@@ -1,3 +1,3 @@
 # boids
 
-Boid simulation using [simulationjs](http://npmjs.com)
+Boid simulation using [simulationjs](http://npmjs.com/simulationjs)
