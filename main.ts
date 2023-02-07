@@ -45,11 +45,11 @@ boidSpeed /= speedReduction;
 // 1 - 0, 1: 100%, 0: 0%
 let cohesionStrength = 0.03;
 let alignmentStrength = 0.095;
-let seperationStrength = 0.042;
+let separationStrength = 0.042;
 let avoidanceStrength = 0.4;
 cohesionStrength /= speedReduction;
 alignmentStrength /= speedReduction;
-seperationStrength /= speedReduction;
+separationStrength /= speedReduction;
 avoidanceStrength /= speedReduction;
 
 // @ts-ignore
@@ -57,7 +57,7 @@ document.getElementById('cohesionInput').value = cohesionStrength * speedReducti
 // @ts-ignore
 document.getElementById('alignmentInput').value = alignmentStrength * speedReduction;
 // @ts-ignore
-document.getElementById('seperationInput').value = seperationStrength * speedReduction;
+document.getElementById('separationInput').value = separationStrength * speedReduction;
 // @ts-ignore
 document.getElementById('numBoidsInput').value = numBoids;
 // @ts-ignore
@@ -65,7 +65,7 @@ document.getElementById('speedReductionInput').value = speedReduction;
 
 const overflowAmount = 8;
 const minDistance = 80;
-const distToSeperate = 35;
+const distToSeparate = 35;
 const avoidDist = 180;
 const maxRotation = 15;
 
@@ -89,7 +89,7 @@ document.getElementById('cohesion').innerHTML = toPercent(cohesionStrength);
 // @ts-ignore
 document.getElementById('alignment').innerHTML = toPercent(alignmentStrength);
 // @ts-ignore
-document.getElementById('seperation').innerHTML = toPercent(seperationStrength);
+document.getElementById('separation').innerHTML = toPercent(separationStrength);
 // @ts-ignore
 document.getElementById('numBoids').innerHTML = numBoids;
 
@@ -102,13 +102,13 @@ document.getElementById('numBoids').innerHTML = numBoids;
 (window as any).changeAlignment = (val: number) => {
   alignmentStrength = val / speedReduction;
   // @ts-ignore
-  document.getElementById('aligment').innerHTML = toPercent(alignmentStrength);
+  document.getElementById('alignment').innerHTML = toPercent(alignmentStrength);
 };
 
-(window as any).changeSeperation = (val: number) => {
-  seperationStrength = val / speedReduction;
+(window as any).changeSeparation = (val: number) => {
+  separationStrength = val / speedReduction;
   // @ts-ignore
-  document.getElementById('seperation').innerHTML = toPercent(seperationStrength);
+  document.getElementById('separation').innerHTML = toPercent(separationStrength);
 };
 // @ts-ignore
 document.getElementById('speedReduction').innerHTML = toPercent(speedReduction);
@@ -132,12 +132,12 @@ document.getElementById('speedReduction').innerHTML = toPercent(speedReduction);
 (window as any).changeSpeedReduction = (val: number) => {
   cohesionStrength *= speedReduction;
   alignmentStrength *= speedReduction;
-  seperationStrength *= speedReduction;
+  separationStrength *= speedReduction;
   boidSpeed *= speedReduction;
   speedReduction = val;
   cohesionStrength /= speedReduction;
   alignmentStrength /= speedReduction;
-  seperationStrength /= speedReduction;
+  separationStrength /= speedReduction;
   boidSpeed /= speedReduction;
   // @ts-ignore
   document.getElementById('speedReduction').innerHTML = toPercent(speedReduction);
@@ -153,14 +153,14 @@ document.getElementById('speedReduction').innerHTML = toPercent(speedReduction);
 };
 
 canvas.on('mousedown', (e: any) => {
-  avoidPoint = new Point(e.offsetX, e.offsetY);
+  avoidPoint = new Point(e.offsetX * canvas.ratio, e.offsetY * canvas.ratio);
 });
 canvas.on('mouseup', () => {
   avoidPoint = null;
 });
 canvas.on('mousemove', (e: any) => {
   if (avoidPoint) {
-    avoidPoint = new Point(e.offsetX, e.offsetY);
+    avoidPoint = new Point(e.offsetX * canvas.ratio, e.offsetY * canvas.ratio);
   }
 });
 
@@ -206,7 +206,7 @@ function clampAngle(angle: number) {
           lines.add(line);
         }
       }
-      if (dist < distToSeperate) {
+      if (dist < distToSeparate) {
         boidsInMinorRadius.push(boids[j]);
       }
     }
@@ -230,14 +230,14 @@ function clampAngle(angle: number) {
     alignmentAmount = isNaN(alignmentAmount) ? 0 : alignmentAmount;
     rotation += alignmentAmount;
 
-    let seperationRotation = 0;
+    let separationRotation = 0;
     for (let j = 0; j < boidsInMinorRadius.length; j++) {
-      const angle = -angleToRotate(boidsInMinorRadius[j].pos, boids[i]) * seperationStrength;
-      seperationRotation += angle;
+      const angle = -angleToRotate(boidsInMinorRadius[j].pos, boids[i]) * separationStrength;
+      separationRotation += angle;
     }
-    seperationRotation = clampAngle(seperationRotation);
-    seperationRotation = isNaN(seperationRotation) ? 0 : seperationRotation;
-    rotation += seperationRotation;
+    separationRotation = clampAngle(separationRotation);
+    separationRotation = isNaN(separationRotation) ? 0 : separationRotation;
+    rotation += separationRotation;
 
     if (avoidPoint && distance(avoidPoint, boids[i].pos) < avoidDist) {
       rotation += -clampAngle(angleToRotate(avoidPoint, boids[i]) * avoidanceStrength);
@@ -247,7 +247,7 @@ function clampAngle(angle: number) {
     boids[i].rotate(rotation);
     const vec = new Vector(0, 1, boids[i].rotation).multiply(-boidSpeed);
     boids[i].move(vec);
-    if (colors) {
+    if (colors && canvas.canvas) {
       boids[i].fill(
         new Color(
           (boids[i].pos.x / canvas.canvas.width) * 255,
@@ -257,15 +257,17 @@ function clampAngle(angle: number) {
       );
     }
 
-    if (boids[i].pos.x < -overflowAmount) {
-      boids[i].moveTo(new Point(canvas.canvas.width + overflowAmount, boids[i].pos.y));
-    } else if (boids[i].pos.x > canvas.canvas.width + overflowAmount) {
-      boids[i].moveTo(new Point(-overflowAmount, boids[i].pos.y));
-    }
-    if (boids[i].pos.y < -overflowAmount) {
-      boids[i].moveTo(new Point(boids[i].pos.x, canvas.canvas.height + overflowAmount));
-    } else if (boids[i].pos.y > canvas.canvas.height + overflowAmount) {
-      boids[i].moveTo(new Point(boids[i].pos.x, -overflowAmount));
+    if (canvas.canvas) {
+      if (boids[i].pos.x < -overflowAmount) {
+        boids[i].moveTo(new Point(canvas.canvas.width + overflowAmount, boids[i].pos.y));
+      } else if (boids[i].pos.x > canvas.canvas.width + overflowAmount) {
+        boids[i].moveTo(new Point(-overflowAmount, boids[i].pos.y));
+      }
+      if (boids[i].pos.y < -overflowAmount) {
+        boids[i].moveTo(new Point(boids[i].pos.x, canvas.canvas.height + overflowAmount));
+      } else if (boids[i].pos.y > canvas.canvas.height + overflowAmount) {
+        boids[i].moveTo(new Point(boids[i].pos.x, -overflowAmount));
+      }
     }
   }
   window.requestAnimationFrame(main);
@@ -284,6 +286,6 @@ function initBoids(num: number) {
   return Array(num)
     .fill({})
     .map(() => {
-      return new Boid(random(canvas.canvas.width), random(canvas.canvas.height), random(360));
+      return new Boid(random(canvas.width), random(canvas.height), random(360));
     });
 }
