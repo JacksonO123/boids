@@ -27,10 +27,14 @@ class Boid extends Polygon {
   constructor(x: number, y: number, r = 0) {
     super(
       new Point(x, y),
-      [new Point(0, -8), new Point(-4, 8), new Point(4, 8)],
+      [
+        new Point(0, -6 * canvas.ratio),
+        new Point(-3 * canvas.ratio, 6 * canvas.ratio),
+        new Point(3 * canvas.ratio, 6 * canvas.ratio)
+      ],
       new Color(0, 0, 0),
       r,
-      new Point(0, -2)
+      new Point(0, -1 * canvas.ratio)
     );
   }
 }
@@ -76,7 +80,8 @@ addBoidsToFrame(boids);
 // let showCircles = true;
 let showLines = false;
 let showCircles = false;
-let colors = true;
+
+let colors = false;
 
 let avoidPoint: Point | null = null;
 
@@ -152,13 +157,13 @@ document.getElementById('speedReduction').innerHTML = toPercent(speedReduction);
   }
 };
 
-canvas.on('mousedown', (e: any) => {
+canvas.on('mousedown', (e: MouseEvent) => {
   avoidPoint = new Point(e.offsetX * canvas.ratio, e.offsetY * canvas.ratio);
 });
 canvas.on('mouseup', () => {
   avoidPoint = null;
 });
-canvas.on('mousemove', (e: any) => {
+canvas.on('mousemove', (e: MouseEvent) => {
   if (avoidPoint) {
     avoidPoint = new Point(e.offsetX * canvas.ratio, e.offsetY * canvas.ratio);
   }
@@ -195,7 +200,7 @@ function clampAngle(angle: number) {
       const p1 = boids[i].pos;
       const p2 = boids[j].pos;
       const dist = distance(p1, p2);
-      if (dist < minDistance) {
+      if (dist < minDistance && angleToRotate(boids[j].pos, boids[i]) < 140) {
         avgX += p2.x;
         avgY += p2.y;
         boidsInRange.push(boids[j]);
@@ -247,27 +252,25 @@ function clampAngle(angle: number) {
     boids[i].rotate(rotation);
     const vec = new Vector(0, 1, boids[i].rotation).multiply(-boidSpeed);
     boids[i].move(vec);
-    if (colors && canvas.canvas) {
+    if (colors) {
       boids[i].fill(
         new Color(
-          (boids[i].pos.x / canvas.canvas.width) * 255,
-          (boids[i].pos.y / canvas.canvas.height) * 255,
-          255 - (boids[i].pos.x / canvas.canvas.width) * 255
+          (boids[i].pos.x / canvas.width) * 255,
+          (boids[i].pos.y / canvas.height) * 255,
+          255 - (boids[i].pos.x / canvas.width) * 255
         )
       );
     }
 
-    if (canvas.canvas) {
-      if (boids[i].pos.x < -overflowAmount) {
-        boids[i].moveTo(new Point(canvas.canvas.width + overflowAmount, boids[i].pos.y));
-      } else if (boids[i].pos.x > canvas.canvas.width + overflowAmount) {
-        boids[i].moveTo(new Point(-overflowAmount, boids[i].pos.y));
-      }
-      if (boids[i].pos.y < -overflowAmount) {
-        boids[i].moveTo(new Point(boids[i].pos.x, canvas.canvas.height + overflowAmount));
-      } else if (boids[i].pos.y > canvas.canvas.height + overflowAmount) {
-        boids[i].moveTo(new Point(boids[i].pos.x, -overflowAmount));
-      }
+    if (boids[i].pos.x < -overflowAmount) {
+      boids[i].moveTo(new Point(canvas.width + overflowAmount, boids[i].pos.y));
+    } else if (boids[i].pos.x > canvas.width + overflowAmount) {
+      boids[i].moveTo(new Point(-overflowAmount, boids[i].pos.y));
+    }
+    if (boids[i].pos.y < -overflowAmount) {
+      boids[i].moveTo(new Point(boids[i].pos.x, canvas.height + overflowAmount));
+    } else if (boids[i].pos.y > canvas.height + overflowAmount) {
+      boids[i].moveTo(new Point(boids[i].pos.x, -overflowAmount));
     }
   }
   window.requestAnimationFrame(main);
